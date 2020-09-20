@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 import { Button, TextField } from '@material-ui/core';
-import { Form, Formik, FormikProps, Field } from 'formik';
+import { Form, Formik, FormikProps, Field, FormikHelpers, FormikState, FormikValues } from 'formik';
 import * as Yup from 'yup';
+import NumberFormat from 'react-number-format';
 
 // import { playerAtom } from '../../store/player/atoms';
 
@@ -20,7 +21,8 @@ const PaymentFormValidationSchema = Yup.object().shape({
     .positive('Сумма должна быть больше 0')
     .integer('Введите целочисленное значение')
     .min(100, 'Сумма должна быть > 100')
-    .max(1000, 'Сумма должна быть < 1000'),
+    .max(1000, 'Сумма должна быть < 1000')
+    .typeError('Введите целочисленное значение'),
 });
 
 const PaymentForm: React.FC = () => {
@@ -34,8 +36,6 @@ const PaymentForm: React.FC = () => {
     // cardCvv: 0,
   };
 
-  // const [field, meta, helpers] = useField(props);
-
   return (
     <Formik
       initialValues={initialValues}
@@ -44,70 +44,48 @@ const PaymentForm: React.FC = () => {
       }}
       validationSchema={PaymentFormValidationSchema}
     >
-      {({ errors, touched, setFieldValue }: { errors: any; touched: any; setFieldValue: any }) => {
-        console.log(errors, touched);
-        return (
-          <Form>
-            <Field
-              name="sum"
-              render={(
-                {
-                  /* { name, value, onChange, onBlur } */
-                },
-              ) => (
-                <TextField
-                  name="sum"
-                  // id="standard-full-width"
-                  label="Сумма"
-                  style={{ margin: 8 }}
-                  placeholder="100 руб."
-                  helperText={
-                    errors && errors.sum && touched.sum ? errors.sum : 'Сумма от 100 до 1000 руб.'
-                  }
-                  fullWidth
-                  margin="normal"
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
-                  error={!!(errors && errors.sum && touched.sum)}
-                  onChange={(event: any) => setFieldValue('sum', parseInt(event.target.value))}
-                />
-              )}
-            />
-            <Button variant="contained" color="primary" type="submit">
-              Оплатить картой
-            </Button>
-          </Form>
-        );
-      }}
+      {({
+        errors,
+        touched,
+        setFieldValue,
+      }: FormikState<FormikValues> & FormikHelpers<FormikValues>) => (
+        <Form>
+          <Field
+            name="sum"
+            render={({ value }: { value: string }) => (
+              <TextField
+                name="sum"
+                label="Сумма"
+                style={{ margin: 8 }}
+                placeholder="100 руб."
+                helperText={
+                  errors && errors.sum && touched.sum ? errors.sum : 'Сумма от 100 до 1000 руб.'
+                }
+                fullWidth
+                margin="normal"
+                InputLabelProps={{
+                  shrink: true,
+                }}
+                InputProps={{
+                  inputComponent: NumberFormat as any, // todo: typing
+                  inputProps: {
+                    suffix: ' ₽',
+                    onChange: (event: React.ChangeEvent<HTMLInputElement>) => {
+                      setFieldValue('sum', parseInt(event.currentTarget.value));
+                    },
+                  },
+                }}
+                error={!!(errors && errors.sum && touched.sum)}
+                value={value}
+              />
+            )}
+          />
+          <Button variant="contained" color="primary" type="submit">
+            Оплатить картой
+          </Button>
+        </Form>
+      )}
     </Formik>
-    // <div>
-    //   <TextField
-    //     id="standard-full-width"
-    //     label="Label"
-    //     style={{ margin: 8 }}
-    //     placeholder="Placeholder"
-    //     fullWidth
-    //     margin="normal"
-    //     InputLabelProps={{
-    //       shrink: true,
-    //     }}
-    //   />
-    //   <TextField
-    //     id="standard-full-width"
-    //     label="Label"
-    //     style={{ margin: 8 }}
-    //     placeholder="Placeholder"
-    //     fullWidth
-    //     margin="normal"
-    //     InputLabelProps={{
-    //       shrink: true,
-    //     }}
-    //   />
-    //   <Button variant="contained" color="primary">
-    //     Primary
-    //   </Button>
-    // </div>
   );
 };
 
