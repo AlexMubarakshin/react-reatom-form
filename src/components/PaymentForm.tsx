@@ -10,7 +10,7 @@ import NumberFormat from 'react-number-format';
 
 interface PaymentFormValues {
   sum: string;
-  // cardNumber: string;
+  cardNo: string;
   // cardExpireDate: string;
   // cardCvv: number;
 }
@@ -23,6 +23,10 @@ const PaymentFormValidationSchema = Yup.object().shape({
     .min(100, 'Сумма должна быть > 100')
     .max(1000, 'Сумма должна быть < 1000')
     .typeError('Введите целочисленное значение'),
+  cardNo: Yup.string()
+    .required('Поле обязательно для заполнения')
+    .min(16, 'Неверно введен номер карты')
+    .required('Поле обязательно для заполнения'),
 });
 
 const PaymentForm: React.FC = () => {
@@ -31,7 +35,7 @@ const PaymentForm: React.FC = () => {
 
   const initialValues: PaymentFormValues = {
     sum: '',
-    // cardNumber: '',
+    cardNo: '',
     // cardExpireDate: '',
     // cardCvv: 0,
   };
@@ -39,7 +43,8 @@ const PaymentForm: React.FC = () => {
   return (
     <Formik
       initialValues={initialValues}
-      onSubmit={(values) => {
+      onSubmit={(values: any) => {
+        // TODO: types
         console.log(values);
       }}
       validationSchema={PaymentFormValidationSchema}
@@ -67,7 +72,7 @@ const PaymentForm: React.FC = () => {
                   shrink: true,
                 }}
                 InputProps={{
-                  inputComponent: NumberFormat as any, // todo: typing
+                  inputComponent: NumberFormat as any, // TODO: typing
                   inputProps: {
                     suffix: ' ₽',
                     onChange: (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -76,6 +81,34 @@ const PaymentForm: React.FC = () => {
                   },
                 }}
                 error={!!(errors && errors.sum && touched.sum)}
+                value={value}
+              />
+            )}
+          />
+          <Field
+            name="cardNo"
+            render={({ value }: { value: string }) => (
+              <TextField
+                name="cardNo"
+                label="Номер карты"
+                style={{ margin: 8 }}
+                placeholder="0000 0000 0000 0000"
+                helperText={errors && errors.cardNo && touched.cardNo && errors.cardNo}
+                fullWidth
+                margin="normal"
+                InputLabelProps={{
+                  shrink: true,
+                }}
+                InputProps={{
+                  inputComponent: NumberFormat as any, // todo: typing
+                  inputProps: {
+                    format: '#### #### #### ####',
+                    onChange: (event: React.ChangeEvent<HTMLInputElement>) => {
+                      setFieldValue('cardNo', event.currentTarget.value.replace(/ /g, ''));
+                    },
+                  },
+                }}
+                error={!!(errors && errors.cardNo && touched.cardNo)}
                 value={value}
               />
             )}
