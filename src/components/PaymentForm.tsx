@@ -6,13 +6,9 @@ import NumberFormat from 'react-number-format';
 import { useAction, useAtom } from '@reatom/react';
 import { executePayment } from 'store/payment-form/actions';
 import { paymentAtom } from 'store/payment-form/atoms';
+import { PaymentFormData } from 'store/payment-form/types';
 
 // TODO: улучшить типизацию
-
-interface PaymentFormValues {
-  sum: string;
-  cardNo: string;
-}
 
 const PaymentFormValidationSchema = Yup.object().shape({
   sum: Yup.number()
@@ -30,9 +26,9 @@ const PaymentFormValidationSchema = Yup.object().shape({
 
 const PaymentForm: React.FC = () => {
   const executePaymentAction = useAction(executePayment);
-  const handleSubmitPayment = React.useCallback((paymentData: any) => {
+  const handleSubmitPayment = React.useCallback((paymentData: PaymentFormData) => {
     // TODO: type for payment data
-    executePaymentAction();
+    executePaymentAction(paymentData);
   }, []);
   const payment = useAtom(paymentAtom);
 
@@ -43,7 +39,7 @@ const PaymentForm: React.FC = () => {
     return;
   }, [payment]);
 
-  const initialValues: PaymentFormValues = {
+  const initialValues: PaymentFormData = {
     sum: '',
     cardNo: '',
     // cardExpireDate: '',
@@ -53,7 +49,7 @@ const PaymentForm: React.FC = () => {
   return (
     <Formik
       initialValues={initialValues}
-      onSubmit={(values: FormikValues) => {
+      onSubmit={(values: FormikValues & PaymentFormData) => {
         handleSubmitPayment(values);
       }}
       validationSchema={PaymentFormValidationSchema}

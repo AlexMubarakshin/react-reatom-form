@@ -5,3 +5,8 @@ export interface PaymentState {
   error: string | null;
   statusCode: PaymentStatusCode | null;
 }
+
+export interface PaymentFormData {
+  sum: number | string;
+  cardNo: string;
+}
