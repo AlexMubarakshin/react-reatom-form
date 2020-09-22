@@ -1,13 +1,19 @@
 import { declareAtom, combine } from '@reatom/core';
 import { paymentRequest, paymentSuccess, paymentFail } from './actions';
-import { PaymentStatus } from './types';
+import { PaymentState } from './types';
 
-export const paymentStatusAtom = declareAtom<PaymentStatus>('paymentStatusAtom', null, (on) => [
-  on(paymentRequest, () => 'process'),
-  on(paymentSuccess, () => 'success'),
-  on(paymentFail, () => 'error'),
-]);
+const initialPaymentState: PaymentState = { status: null, error: null, statusCode: null };
 
-export const paymentFormAtom = combine({
-  paymentStatusAtom,
-});
+export const paymentAtom = declareAtom<PaymentState>(
+  'payment',
+  initialPaymentState,
+  (on) => [
+    on(paymentRequest, (state: PaymentState) => ({ ...state, status: 'process' })),
+    on(paymentSuccess, (state: PaymentState, statusCode) => ({
+      ...state,
+      status: 'success',
+      statusCode,
+    })),
+    on(paymentFail, (state: PaymentState) => ({ ...state, status: 'error' })),
+  ],
+);

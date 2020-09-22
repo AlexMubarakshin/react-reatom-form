@@ -5,7 +5,7 @@ import { Button, TextField } from '@material-ui/core';
 import NumberFormat from 'react-number-format';
 import { useAction, useAtom } from '@reatom/react';
 import { executePayment } from 'store/payment-form/actions';
-import { paymentStatusAtom } from 'store/payment-form/atoms';
+import { paymentAtom } from 'store/payment-form/atoms';
 
 // TODO: улучшить типизацию
 
@@ -34,14 +34,14 @@ const PaymentForm: React.FC = () => {
     // TODO: type for payment data
     executePaymentAction();
   }, []);
-  const paymentStatus = useAtom(paymentStatusAtom);
+  const payment = useAtom(paymentAtom);
 
   useEffect(() => {
-    console.log(paymentStatus);
-    if (paymentStatus === 'success') {
-      alert(`Payment status: ${paymentStatus}`);
+    if (payment.status === 'success') {
+      alert(`Payment status: ${payment.status}`);
     }
-  }, [paymentStatus]);
+    return;
+  }, [payment]);
 
   const initialValues: PaymentFormValues = {
     sum: '',
@@ -73,7 +73,9 @@ const PaymentForm: React.FC = () => {
                 style={{ margin: 8 }}
                 placeholder="100 руб."
                 helperText={
-                  errors && errors.sum && touched.sum ? errors.sum : 'Сумма от 100 до 1000 руб.'
+                  errors && errors.sum && touched.sum
+                    ? errors.sum
+                    : 'Сумма от 100 до 1000 руб.'
                 }
                 fullWidth
                 margin="normal"
@@ -113,7 +115,10 @@ const PaymentForm: React.FC = () => {
                   inputProps: {
                     format: '#### #### #### ####',
                     onChange: (event: React.ChangeEvent<HTMLInputElement>) => {
-                      setFieldValue('cardNo', event.currentTarget.value.replace(/ /g, ''));
+                      setFieldValue(
+                        'cardNo',
+                        event.currentTarget.value.replace(/ /g, ''),
+                      );
                     },
                   },
                 }}

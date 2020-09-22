@@ -5,20 +5,20 @@ import { connectReduxDevtools } from '@reatom/debug';
 import { Container } from '@material-ui/core';
 
 import PaymentForm from 'components/PaymentForm';
-import { paymentFormAtom } from 'store/payment-form/atoms';
+import { paymentAtom } from 'store/payment-form/atoms';
 
 const App: React.FC = () => {
-  const store = React.useMemo(() => createStore(combine([paymentFormAtom])), []);
+  const store = createStore(combine([paymentAtom]));
   React.useEffect(() => connectReduxDevtools(store), []);
 
   return (
-    <div className="App">
-      <Container maxWidth="sm">
-        <context.Provider value={store}>
+    <context.Provider value={store}>
+      <div className="App">
+        <Container maxWidth="sm">
           <PaymentForm />
-        </context.Provider>
-      </Container>
-    </div>
+        </Container>
+      </div>
+    </context.Provider>
   );
 };
 
