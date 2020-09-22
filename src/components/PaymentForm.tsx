@@ -1,18 +1,17 @@
-import React, { ReactElement } from 'react';
-import { Button, TextField } from '@material-ui/core';
-import { Form, Formik, FormikProps, Field, FormikHelpers, FormikState, FormikValues } from 'formik';
+import React, { useEffect } from 'react';
 import * as Yup from 'yup';
+import { Form, Formik, Field, FormikHelpers, FormikState, FormikValues } from 'formik';
+import { Button, TextField } from '@material-ui/core';
 import NumberFormat from 'react-number-format';
-
-// import { playerAtom } from '../../store/player/atoms';
+import { useAction, useAtom } from '@reatom/react';
+import { executePayment } from 'store/payment-form/actions';
+import { paymentStatusAtom } from 'store/payment-form/atoms';
 
 // TODO: улучшить типизацию
 
 interface PaymentFormValues {
   sum: string;
   cardNo: string;
-  // cardExpireDate: string;
-  // cardCvv: number;
 }
 
 const PaymentFormValidationSchema = Yup.object().shape({
@@ -30,8 +29,19 @@ const PaymentFormValidationSchema = Yup.object().shape({
 });
 
 const PaymentForm: React.FC = () => {
-  // const store = React.useMemo(() => createStore(combine([playerAtom])), []);
-  // React.useEffect(() => connectReduxDevtools(store), []);
+  const executePaymentAction = useAction(executePayment);
+  const handleSubmitPayment = React.useCallback((paymentData: any) => {
+    // TODO: type for payment data
+    executePaymentAction();
+  }, []);
+  const paymentStatus = useAtom(paymentStatusAtom);
+
+  useEffect(() => {
+    console.log(paymentStatus);
+    if (paymentStatus === 'success') {
+      alert(`Payment status: ${paymentStatus}`);
+    }
+  }, [paymentStatus]);
 
   const initialValues: PaymentFormValues = {
     sum: '',
@@ -43,9 +53,8 @@ const PaymentForm: React.FC = () => {
   return (
     <Formik
       initialValues={initialValues}
-      onSubmit={(values: any) => {
-        // TODO: types
-        console.log(values);
+      onSubmit={(values: FormikValues) => {
+        handleSubmitPayment(values);
       }}
       validationSchema={PaymentFormValidationSchema}
     >
