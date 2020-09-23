@@ -24,6 +24,13 @@ const PaymentFormValidationSchema = Yup.object().shape({
     .required('Поле обязательно для заполнения'),
 });
 
+const initialValues: PaymentFormData = {
+  sum: '',
+  cardNo: '',
+  // cardExpireDate: '',
+  // cardCvv: 0,
+};
+
 const PaymentForm: React.FC = () => {
   const executePaymentAction = useAction(executePayment);
   const handleSubmitPayment = React.useCallback((paymentData: PaymentFormData) => {
@@ -38,13 +45,6 @@ const PaymentForm: React.FC = () => {
     }
     return;
   }, [payment]);
-
-  const initialValues: PaymentFormData = {
-    sum: '',
-    cardNo: '',
-    // cardExpireDate: '',
-    // cardCvv: 0,
-  };
 
   return (
     <Formik

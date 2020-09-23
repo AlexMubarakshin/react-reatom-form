@@ -7,8 +7,9 @@ import { Container } from '@material-ui/core';
 import PaymentForm from 'components/PaymentForm';
 import { paymentAtom } from 'store/payment-form/atoms';
 
+const store = createStore(combine([paymentAtom]));
+
 const App: React.FC = () => {
-  const store = createStore(combine([paymentAtom]));
   React.useEffect(() => connectReduxDevtools(store), []);
 
   return (
