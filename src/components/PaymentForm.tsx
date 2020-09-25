@@ -1,7 +1,15 @@
 import React, { useEffect } from 'react';
 import * as Yup from 'yup';
 import { Form, Formik, Field, FormikHelpers, FormikState, FormikValues } from 'formik';
-import { Button, TextField } from '@material-ui/core';
+import {
+  Button,
+  TextField,
+  FormControlLabel,
+  Checkbox,
+  FormGroup,
+  Typography,
+  Box,
+} from '@material-ui/core';
 import NumberFormat from 'react-number-format';
 import { useAction, useAtom } from '@reatom/react';
 import { executePayment } from 'store/payment-form/actions';
@@ -47,88 +55,205 @@ const PaymentForm: React.FC = () => {
   }, [payment]);
 
   return (
-    <Formik
-      initialValues={initialValues}
-      onSubmit={(values: FormikValues & PaymentFormData) => {
-        handleSubmitPayment(values);
-      }}
-      validationSchema={PaymentFormValidationSchema}
-    >
-      {({
-        errors,
-        touched,
-        setFieldValue,
-      }: FormikState<FormikValues> & FormikHelpers<FormikValues>) => (
-        <Form>
-          <Field
-            name="sum"
-            render={({ value }: { value: string }) => (
-              <TextField
-                name="sum"
-                label="Сумма"
-                style={{ margin: 8 }}
-                placeholder="100 руб."
-                helperText={
-                  errors && errors.sum && touched.sum
-                    ? errors.sum
-                    : 'Сумма от 100 до 1000 руб.'
-                }
-                fullWidth
-                margin="normal"
-                InputLabelProps={{
-                  shrink: true,
-                }}
-                InputProps={{
-                  inputComponent: NumberFormat as any, // TODO: typing
-                  inputProps: {
-                    suffix: ' ₽',
-                    onChange: (event: React.ChangeEvent<HTMLInputElement>) => {
-                      setFieldValue('sum', parseInt(event.currentTarget.value));
+    <>
+      <Typography variant="h4" component="h4" gutterBottom>
+        Пополнение баланса
+      </Typography>
+      <Formik
+        initialValues={initialValues}
+        onSubmit={(values: FormikValues & PaymentFormData) => {
+          handleSubmitPayment(values);
+        }}
+        validationSchema={PaymentFormValidationSchema}
+      >
+        {({
+          errors,
+          touched,
+          setFieldValue,
+        }: FormikState<FormikValues> & FormikHelpers<FormikValues>) => (
+          <Form>
+            <Field
+              name="sum"
+              render={({ value }: { value: string }) => (
+                <TextField
+                  name="sum"
+                  label="Сумма платежа"
+                  placeholder="100 руб."
+                  helperText={
+                    errors && errors.sum && touched.sum
+                      ? errors.sum
+                      : 'Сумма от 100 до 1000 руб.'
+                  }
+                  fullWidth
+                  margin="normal"
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                  InputProps={{
+                    inputComponent: NumberFormat as any, // TODO: typing
+                    inputProps: {
+                      suffix: ' ₽',
+                      onChange: (event: React.ChangeEvent<HTMLInputElement>) => {
+                        setFieldValue('sum', parseInt(event.currentTarget.value));
+                      },
                     },
-                  },
-                }}
-                error={!!(errors && errors.sum && touched.sum)}
-                value={value}
-              />
-            )}
-          />
-          <Field
-            name="cardNo"
-            render={({ value }: { value: string }) => (
-              <TextField
-                name="cardNo"
-                label="Номер карты"
-                style={{ margin: 8 }}
-                placeholder="0000 0000 0000 0000"
-                helperText={errors && errors.cardNo && touched.cardNo && errors.cardNo}
-                fullWidth
-                margin="normal"
-                InputLabelProps={{
-                  shrink: true,
-                }}
-                InputProps={{
-                  inputComponent: NumberFormat as any, // todo: typing
-                  inputProps: {
-                    format: '#### #### #### ####',
-                    onChange: (event: React.ChangeEvent<HTMLInputElement>) => {
-                      setFieldValue(
-                        'cardNo',
-                        event.currentTarget.value.replace(/ /g, ''),
-                      );
+                  }}
+                  error={!!(errors && errors.sum && touched.sum)}
+                  value={value}
+                />
+              )}
+            />
+            <Typography variant="h6" component="h6" gutterBottom>
+              Реквизиты карты
+            </Typography>
+            <Field
+              name="cardNo"
+              render={({ value }: { value: string }) => (
+                <TextField
+                  name="cardNo"
+                  label="Номер карты"
+                  placeholder="0000 0000 0000 0000"
+                  helperText={errors && errors.cardNo && touched.cardNo && errors.cardNo}
+                  fullWidth
+                  margin="normal"
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                  InputProps={{
+                    inputComponent: NumberFormat as any, // todo: typing
+                    inputProps: {
+                      format: '#### #### #### ####',
+                      onChange: (event: React.ChangeEvent<HTMLInputElement>) => {
+                        setFieldValue(
+                          'cardNo',
+                          event.currentTarget.value.replace(/ /g, ''),
+                        );
+                      },
                     },
-                  },
-                }}
-                error={!!(errors && errors.cardNo && touched.cardNo)}
-                value={value}
-              />
-            )}
-          />
-          <Button variant="contained" color="primary" type="submit">
-            Оплатить картой
-          </Button>
-        </Form>
-      )}
-    </Formik>
+                  }}
+                  error={!!(errors && errors.cardNo && touched.cardNo)}
+                  value={value}
+                />
+              )}
+            />
+
+            <Field
+              name="cardExpire"
+              render={({ value }: { value: string }) => (
+                <TextField
+                  name="cardExpire"
+                  label="Срок действия"
+                  placeholder="MM / ГГ"
+                  helperText={errors && errors.cardNo && touched.cardNo && errors.cardNo}
+                  fullWidth
+                  margin="normal"
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                  InputProps={{
+                    inputComponent: NumberFormat as any, // todo: typing
+                    inputProps: {
+                      format: '## / ##',
+                      onChange: (event: React.ChangeEvent<HTMLInputElement>) => {
+                        setFieldValue(
+                          'cardExpire',
+                          event.currentTarget.value.replace(/ /g, ''),
+                        );
+                      },
+                    },
+                  }}
+                  error={!!(errors && errors.cardNo && touched.cardNo)}
+                  value={value}
+                />
+              )}
+            />
+            <Field
+              name="cardCvv"
+              render={({ value }: { value: string }) => (
+                <TextField
+                  name="cardCvv"
+                  label="Код CVC / CVV"
+                  placeholder="***"
+                  helperText={errors && errors.cardNo && touched.cardNo && errors.cardNo}
+                  fullWidth
+                  margin="normal"
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                  InputProps={{
+                    inputComponent: NumberFormat as any, // todo: typing
+                    inputProps: {
+                      format: '###',
+                      onChange: (event: React.ChangeEvent<HTMLInputElement>) => {
+                        setFieldValue(
+                          'cardCvv',
+                          event.currentTarget.value.replace(/ /g, ''),
+                        );
+                      },
+                    },
+                  }}
+                  error={!!(errors && errors.cardNo && touched.cardNo)}
+                  value={value}
+                />
+              )}
+            />
+            <Field
+              name="cardHolder"
+              render={({ value }: { value: string }) => (
+                <TextField
+                  name="cardHolder"
+                  label="Владелец карты"
+                  placeholder="IVAN IVANOV"
+                  helperText={errors && errors.cardNo && touched.cardNo && errors.cardNo}
+                  fullWidth
+                  margin="normal"
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                  InputProps={{
+                    inputComponent: NumberFormat as any, // todo: typing
+                    inputProps: {
+                      format: '#### #### #### ####',
+                      onChange: (event: React.ChangeEvent<HTMLInputElement>) => {
+                        setFieldValue(
+                          'cardNo',
+                          event.currentTarget.value.replace(/ /g, ''),
+                        );
+                      },
+                    },
+                  }}
+                  error={!!(errors && errors.cardNo && touched.cardNo)}
+                  value={value}
+                />
+              )}
+            />
+
+            <Field
+              name="isConnectAutopay"
+              render={({ value }: { value: string }) => (
+                <FormGroup>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        // checked={true}
+                        // onChange={() => {}}
+                        name="checkedB"
+                        color="primary"
+                      />
+                    }
+                    label="Подключить автоплатеж"
+                  />
+                </FormGroup>
+              )}
+            />
+
+            <Button variant="contained" color="primary" type="submit">
+              Оплатить картой
+            </Button>
+          </Form>
+        )}
+      </Formik>
+    </>
   );
 };
 
