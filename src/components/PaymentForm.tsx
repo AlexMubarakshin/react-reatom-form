@@ -16,6 +16,8 @@ import { executePayment } from 'store/payment-form/actions';
 import { paymentAtom } from 'store/payment-form/atoms';
 import { PaymentFormData } from 'store/payment-form/types';
 
+import s from './PaymentForm.css';
+
 // TODO: улучшить типизацию
 
 const PaymentFormValidationSchema = Yup.object().shape({
@@ -56,7 +58,7 @@ const PaymentForm: React.FC = () => {
 
   return (
     <>
-      <Typography variant="h4" component="h4" gutterBottom>
+      <Typography variant="h4" component="h4" gutterBottom className={s.title}>
         Пополнение баланса
       </Typography>
       <Formik
@@ -76,6 +78,7 @@ const PaymentForm: React.FC = () => {
               name="sum"
               render={({ value }: { value: string }) => (
                 <TextField
+                  className={s.textField}
                   name="sum"
                   label="Сумма платежа"
                   placeholder="100 руб."
@@ -233,12 +236,16 @@ const PaymentForm: React.FC = () => {
               render={({ value }: { value: string }) => (
                 <FormGroup>
                   <FormControlLabel
+                    className={s.test}
                     control={
                       <Checkbox
                         // checked={true}
                         // onChange={() => {}}
                         name="checkedB"
                         color="primary"
+                        classes={{
+                          checked: s.checkBox,
+                        }}
                       />
                     }
                     label="Подключить автоплатеж"

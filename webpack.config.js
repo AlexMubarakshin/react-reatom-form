@@ -28,17 +28,29 @@ module.exports = {
         loader: 'source-map-loader',
       },
       {
-        test: /\.css$/,
-        loader: 'css-loader',
+        test: /\.css$/i,
+        exclude: /node_modules/,
+        use: [
+          // TODO: isProductionBuild ? MiniCssExtractPlugin.loader : "style-loader",
+          'style-loader',
+          {
+            loader: 'css-loader',
+            options: {
+              importLoaders: 1,
+              sourceMap: true,
+              modules: {
+                mode: 'local',
+                localIdentName: 'Yota-[name]-[local]',
+              },
+            },
+          },
+        ],
       },
     ],
   },
   plugins: [
     new HtmlWebpackPlugin({
       template: 'src/index.html',
-    }),
-    new MiniCssExtractPlugin({
-      filename: './src/yourfile.css',
     }),
   ],
 };

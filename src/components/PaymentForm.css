@@ -1,0 +1,18 @@
+.title {
+  color: red;
+}
+
+.checkBox {
+  width: 20px;
+  background-color: orange !important;
+}
+
+.MuiInputBase-input {
+  background-color: #ccc;
+}
+
+/* with composition (by css-modules) */
+.textField {
+  composes: MuiInputBase-input;
+  border: 1px solid green;
+}
