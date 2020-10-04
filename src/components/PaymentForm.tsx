@@ -1,16 +1,14 @@
 import React, { useEffect } from 'react';
 import * as Yup from 'yup';
 import { Form, Formik, Field, FormikHelpers, FormikState, FormikValues } from 'formik';
-import { Button, TextField } from '@material-ui/core';
+import { Button, InputBaseComponentProps, TextField } from '@material-ui/core';
 import NumberFormat from 'react-number-format';
 import { useAction, useAtom } from '@reatom/react';
 import { executePayment } from 'store/payment-form/actions';
 import { paymentAtom } from 'store/payment-form/atoms';
 import { PaymentFormData } from 'store/payment-form/types';
 
-// TODO: улучшить типизацию
-
-const PaymentFormValidationSchema = Yup.object().shape({
+const PaymentFormValidationSchema = Yup.object().shape<PaymentFormData>({
   sum: Yup.number()
     .required('Поле обязательно для заполнения')
     .positive('Сумма должна быть больше 0')
@@ -31,9 +29,9 @@ const initialValues: PaymentFormData = {
   // cardCvv: 0,
 };
 
-const PaymentForm: React.FC = () => {
+const usePaymentForm = () => {
   const executePaymentAction = useAction(executePayment);
-  const handleSubmitPayment = React.useCallback((paymentData: PaymentFormData) => {
+  const onSubmit = React.useCallback((paymentData: FormikValues & PaymentFormData) => {
     // TODO: type for payment data
     executePaymentAction(paymentData);
   }, []);
@@ -46,12 +44,16 @@ const PaymentForm: React.FC = () => {
     return;
   }, [payment]);
 
+  return { onSubmit };
+}
+
+const PaymentForm: React.FC = () => {
+  const { onSubmit } = usePaymentForm();
+
   return (
     <Formik
       initialValues={initialValues}
-      onSubmit={(values: FormikValues & PaymentFormData) => {
-        handleSubmitPayment(values);
-      }}
+      onSubmit={onSubmit}
       validationSchema={PaymentFormValidationSchema}
     >
       {({
@@ -59,75 +61,77 @@ const PaymentForm: React.FC = () => {
         touched,
         setFieldValue,
       }: FormikState<FormikValues> & FormikHelpers<FormikValues>) => (
-        <Form>
-          <Field
-            name="sum"
-            render={({ value }: { value: string }) => (
-              <TextField
-                name="sum"
-                label="Сумма"
-                style={{ margin: 8 }}
-                placeholder="100 руб."
-                helperText={
-                  errors && errors.sum && touched.sum
-                    ? errors.sum
-                    : 'Сумма от 100 до 1000 руб.'
-                }
-                fullWidth
-                margin="normal"
-                InputLabelProps={{
-                  shrink: true,
-                }}
-                InputProps={{
-                  inputComponent: NumberFormat as any, // TODO: typing
-                  inputProps: {
-                    suffix: ' ₽',
-                    onChange: (event: React.ChangeEvent<HTMLInputElement>) => {
-                      setFieldValue('sum', parseInt(event.currentTarget.value));
+          <Form>
+            <Field
+              name="sum"
+              render={({ value }: { value: string }) => (
+                <TextField
+                  name="sum"
+                  label="Сумма"
+                  style={{ margin: 8 }}
+                  placeholder="100 руб."
+                  helperText={
+                    errors && errors.sum && touched.sum
+                      ? errors.sum
+                      : 'Сумма от 100 до 1000 руб.'
+                  }
+                  fullWidth
+                  margin="normal"
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                  InputProps={{
+                    inputComponent: NumberFormat as React.ElementType<InputBaseComponentProps>,
+                    inputProps: {
+                      suffix: ' ₽',
+                      onChange: (event: React.ChangeEvent<HTMLInputElement>) => {
+                        setFieldValue('sum', parseInt(event.currentTarget.value));
+                      },
                     },
-                  },
-                }}
-                error={!!(errors && errors.sum && touched.sum)}
-                value={value}
-              />
-            )}
-          />
-          <Field
-            name="cardNo"
-            render={({ value }: { value: string }) => (
-              <TextField
-                name="cardNo"
-                label="Номер карты"
-                style={{ margin: 8 }}
-                placeholder="0000 0000 0000 0000"
-                helperText={errors && errors.cardNo && touched.cardNo && errors.cardNo}
-                fullWidth
-                margin="normal"
-                InputLabelProps={{
-                  shrink: true,
-                }}
-                InputProps={{
-                  inputComponent: NumberFormat as any, // todo: typing
-                  inputProps: {
-                    format: '#### #### #### ####',
-                    onChange: (event: React.ChangeEvent<HTMLInputElement>) => {
-                      setFieldValue(
-                        'cardNo',
-                        event.currentTarget.value.replace(/ /g, ''),
-                      );
+                  }}
+                  error={!!(errors && errors.sum && touched.sum)}
+                  value={value}
+                />
+              )}
+            />
+
+            <Field
+              name="cardNo"
+              render={({ value }: { value: string }) => (
+                <TextField
+                  name="cardNo"
+                  label="Номер карты"
+                  style={{ margin: 8 }}
+                  placeholder="0000 0000 0000 0000"
+                  helperText={errors && errors.cardNo && touched.cardNo && errors.cardNo}
+                  fullWidth
+                  margin="normal"
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                  InputProps={{
+                    inputComponent: NumberFormat as React.ElementType<InputBaseComponentProps>,
+                    inputProps: {
+                      format: '#### #### #### ####',
+                      onChange: (event: React.ChangeEvent<HTMLInputElement>) => {
+                        setFieldValue(
+                          'cardNo',
+                          event.currentTarget.value.replace(/ /g, ''),
+                        );
+                      },
                     },
-                  },
-                }}
-                error={!!(errors && errors.cardNo && touched.cardNo)}
-                value={value}
-              />
-            )}
-          />
-          <Button variant="contained" color="primary" type="submit">
-            Оплатить картой
-          </Button>
-        </Form>
-      )}
+                  }}
+                  error={!!(errors && errors.cardNo && touched.cardNo)}
+                  value={value}
+                />
+              )}
+            />
+
+            <Button variant="contained" color="primary" type="submit">
+              Оплатить картой
+            </Button>
+          </Form>
+        )}
     </Formik>
   );
 };
